@@ -8,35 +8,36 @@ import java.util.Random;
 
 import javax.imageio.ImageIO;
 
-import tile.SkyTile;
-import tile.StandardPlatformTile;
-import tile.Tile;
-import tile.VoidTile;
 import entities.Entity;
 import entities.mobs.player.Player;
-import entities.platforms.Platform;
+import entities.tiles.SkyTile;
+import entities.tiles.StdPlatformTileFactory;
+import entities.tiles.Tile;
+import entities.tiles.VoidTile;
 import graphics.Screen;
 
 public class Level{
-	protected int width, height;
-	protected int[] tiles;
+	protected int width, height;	//width and height of level in number of tiles
+	protected int[] tiles;	//size = tile format
 	private int maxDistance = 3;
 	public int skyColor = 0xff0096ff;
+	public StdPlatformTileFactory spt;
+	private Player player;
 	
 	public static Level baseLevel = new Level("/levels/BaseLevel.png");
-	List<Player> player = new ArrayList<Player>();
-	List<Platform> platform = new ArrayList<Platform>();
+	public List<Tile> tileList = new ArrayList<Tile>();
 	
 	public Level(String path){
 		load(path);
+		spt = new StdPlatformTileFactory();
 	}
 
 	protected void load(String path) {
 		try{
 			BufferedImage image = ImageIO.read(Level.class.getResource(path));
-			width = image.getWidth();	//40 (converted to game size = 2560)
-			height = image.getHeight();	//60 (converted to game size = 3840)
-			tiles = new int[width * height];
+			width = image.getWidth();	//10 (converted to game size = 640)
+			height = image.getHeight();	//15 (converted to game size = 960)
+			tiles = new int[width * height];	//
 			image.getRGB(0,0,width,height,tiles,0,width);
 			generateRandPlatforms();
 		} catch(IOException e){
@@ -74,41 +75,49 @@ public class Level{
 		for(int y = screenTopLeft_y; y < screenBottomRight_y; y++){	//x and y represent tile counters
 			for(int x = screenTopLeft_x; x < screenBottomRight_x; x++){
 				Tile t = generateTile(x,y);
+				if(t != VoidTile.void_tile){
+					if(x+y*width >= tileList.size()){
+						tileList.add(t);
+					}
+					else{						
+						tileList.set(x+y*width,t);
+					}
+				}
 				screen.renderTile((x << 6) - topLeftPixel_x,(y << 6) - topLeftPixel_y,t);	//convert to pixel precision and obtain the relevant screen pixel
 			}
 		}
-		for(int i = 0; i < player.size(); i++){
-			screen.renderEntity(player.get(i).getXCoord() - 32 - topLeftPixel_x, player.get(i).getYCoord() - 32 - topLeftPixel_y + 180, player.get(i));
-		}
-		for(int i = 0; i < platform.size(); i++){
-			screen.renderEntity(platform.get(i).getXCoord() - topLeftPixel_x, player.get(i).getYCoord() - topLeftPixel_y + 180, platform.get(i));
-		}
+		screen.renderEntity(player.getXCoord() - 32 - topLeftPixel_x, player.getYCoord() - 32 - topLeftPixel_y, player);
 	}
 	
 	void add(Entity e){
 		if(e instanceof Player){
-			player.add((Player)e);
-		}
-		else if(e instanceof Platform){
-			platform.add((Platform)e);
+			this.player = (Player)e;
 		}
 	}
 	
 	void update(){
-		for(int i = 0; i < player.size(); i++){
-			player.get(i).update();
+		for(int i = 0; i < tileList.size(); i++){
+			tileList.get(i).update(player);
 		}
-		for(int i = 0; i < platform.size(); i++){
-			platform.get(i).update();
-		}
+		player.update();
 	}	
 
 	protected Tile generateTile(int x, int y){
+		int xPixel = x * 64;
+		int yPixel = y * 64;
 		if(x < 0 || x >= width || y < 0 || y >= height) return VoidTile.void_tile; 	//will be changed to skytile later
-		if(tiles[x+y*width] == -1) return StandardPlatformTile.l_tile;
-		else if(tiles[x+y*width] == -2) return StandardPlatformTile.m_tile;
-		else if(tiles[x+y*width] == -3) return StandardPlatformTile.r_tile;
-		else return SkyTile.sky_tile;
+		if(tiles[x+y*width] == -1){
+			return spt.sptFactory("l_tile", xPixel, yPixel);
+		}
+		else if(tiles[x+y*width] == -2){
+			return spt.sptFactory("m_tile", xPixel, yPixel);
+		}
+		else if(tiles[x+y*width] == -3){
+			return spt.sptFactory("r_tile", xPixel, yPixel);
+		}
+		else{
+			return SkyTile.sky_tile;
+		}
 	}
 
 	public int getWidth(){

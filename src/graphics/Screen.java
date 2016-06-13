@@ -1,11 +1,11 @@
 package graphics;
 
-import tile.Tile;
 import entities.Entity;
 import entities.mobs.Mob;
+import entities.tiles.Tile;
 
 public class Screen {
-	private int width, height;
+	private int width, height;	//width and height of screen in pixels
 	public int[] pixels;
 	
 	public Screen(int width, int height){

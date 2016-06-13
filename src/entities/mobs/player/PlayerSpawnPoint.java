@@ -8,9 +8,10 @@ public class PlayerSpawnPoint {
 	private int xCoord, yCoord;
 	Random rand = new Random();
 	
+	//TODO: implement random y spawn point
 	public PlayerSpawnPoint(Level level){
-		xCoord = (level.getWidth()/2)*64;
-		yCoord = level.getHeight()/2*64;// + rand.nextInt(level.getHeight()/8))*64; 
+		xCoord = (level.getWidth()/2)*64;//320
+		yCoord = ((level.getHeight()*3)/4)*64; // + rand.nextInt(level.getHeight()/8))*64;
 	}
 	
 	public int getXCoord(){

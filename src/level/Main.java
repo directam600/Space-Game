@@ -46,7 +46,6 @@ public class Main extends Canvas implements Runnable{
 		setPreferredSize(d);
 		frame = new JFrame(TITLE);
 		screen = new Screen(width,height);
-		
 		level = Level.baseLevel;
 		key = new Keyboard();
 		spawn = new PlayerSpawnPoint(level);
@@ -103,7 +102,6 @@ public class Main extends Canvas implements Runnable{
 			long currentTime = System.nanoTime();
 			threshold += (currentTime - previousTime) / nanoSecPerTick;
 			previousTime = currentTime;
-			
 			if(threshold >= 1){
 				update();
 				ticks++;
@@ -135,7 +133,7 @@ public class Main extends Canvas implements Runnable{
 			return;
 		}
 		screen.clear();
-		double yTopLeftPixel = player.getYCoord() - screen.getHeight()/2;	//160
+		double yTopLeftPixel = player.getYCoord() - (screen.getHeight()*3)/4 + 16;	//-32
 		level.getBluePrint((int)XTOPLEFTPIXEL, (int)yTopLeftPixel, screen);
 		for(int i = 0; i < pixels.length; i++){
 			pixels[i] = screen.pixels[i];

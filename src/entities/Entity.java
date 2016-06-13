@@ -4,6 +4,7 @@ import graphics.sprites.Sprite;
 import level.Level;
 
 public abstract class Entity {
-	protected int xCoord, yCoord;
+	public int xCoord, yCoord;
 	public Sprite sprite;
+	protected boolean isSolid;
 }
